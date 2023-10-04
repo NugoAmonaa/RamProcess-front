@@ -9,18 +9,19 @@ import {LineChartAjaxComponent} from './components/key-features/line.chart.ajax.
 import {NotFoundComponent} from './components/not-found/not-found.component';
 
 import {AppRoutingModule} from './app-routing.module';
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
     declarations: [
         AppComponent,
-        LineChartAjaxComponent,
         NotFoundComponent
     ],
     imports: [
         BrowserModule,
         AppRoutingModule,
         HttpClientModule,
-        CanvasJSAngularStockChartsModule
+        CanvasJSAngularStockChartsModule,
+        FormsModule
     ],
     providers: [],
     bootstrap: [AppComponent]
