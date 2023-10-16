@@ -43,7 +43,13 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
     selectedEndDate: string = '';
     constructor(private http: HttpClient) {
         this.fetchApplicationNames();
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
+        this.selectedStartDate = firstDayOfMonth.toISOString().slice(0, 10);
+        this.selectedEndDate = lastDayOfMonth.toISOString().slice(0, 10);
+        console.log(this.selectedEndDate);
     }
 
     chartOptions = {
@@ -106,6 +112,8 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
         if (this.selectedStartDate && this.selectedEndDate) {
             apiUrl += `?startDate=${this.selectedStartDate}&endDate=${this.selectedEndDate}`;
         }
+        console.log(this.selectedEndDate);
+
         if (this.selectedAppName!='') {
             apiUrl += `&appName=${this.selectedAppName}`;
         }
@@ -138,7 +146,7 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
 
     changeStartDate() {
         if (this.selectedStartDate) {
-            const startDate = new Date(this.selectedStartDate).toISOString();
+            const startDate = new Date(this.selectedStartDate).toISOString().split('T')[0];
             this.selectedStartDate = startDate;
         }
         this.fetchDataAndUpdateChart();
@@ -146,7 +154,7 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
 
     changeEndDate() {
         if (this.selectedEndDate) {
-            const endDate = new Date(this.selectedEndDate).toISOString();
+            const endDate = new Date(this.selectedEndDate).toISOString().split('T')[0];
             this.selectedEndDate = endDate;
         }
         this.fetchDataAndUpdateChart();
