@@ -2,14 +2,12 @@ import {AfterViewInit, Component, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {interval, Subscription} from 'rxjs';
 import {CanvasJSAngularChartsModule} from "@canvasjs/angular-charts";
-import {FormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatNativeDateModule} from '@angular/material/core';
-import {FormGroup, FormControl, ReactiveFormsModule} from '@angular/forms';
-import {NgIf, JsonPipe} from '@angular/common';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 @Component({
@@ -146,16 +144,14 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
 
     changeStartDate() {
         if (this.selectedStartDate) {
-            const startDate = new Date(this.selectedStartDate).toISOString().split('T')[0];
-            this.selectedStartDate = startDate;
+            this.selectedStartDate = new Date(this.selectedStartDate).toISOString().split('T')[0];
         }
         this.fetchDataAndUpdateChart();
     }
 
     changeEndDate() {
         if (this.selectedEndDate) {
-            const endDate = new Date(this.selectedEndDate).toISOString().split('T')[0];
-            this.selectedEndDate = endDate;
+            this.selectedEndDate = new Date(this.selectedEndDate).toISOString().split('T')[0];
         }
         this.fetchDataAndUpdateChart();
     }
