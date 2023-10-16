@@ -1,13 +1,36 @@
-<div class="interval-dropdown">
-	<label for="intervalSelect">Select Interval:</label>
-	<select id="intervalSelect" [(ngModel)]="selectedInterval" (change)="changeInterval()">
-		<option value="1000">1 Second</option>
-		<option value="5000">5 Seconds</option>
-		<option value="10000">10 Seconds</option>
-		<option value="30000">30 Seconds</option>
-		<option value="60000">1 Minute</option>
-	</select>
+<div class="filter-section">
+	<div class="filter">
+		<label for="intervalSelect">Select Interval:</label>
+		<select id="intervalSelect" [(ngModel)]="selectedInterval" (change)="changeInterval()">
+			<option value="1000">1 Second</option>
+			<option value="5000">5 Seconds</option>
+			<option value="10000">10 Seconds</option>
+			<option value="30000">30 Seconds</option>
+			<option value="60000">1 Minute</option>
+		</select>
+	</div>
+
+	<div class="filter">
+		<label for="appSelect">Select Application:</label>
+		<select id="appSelect" [(ngModel)]="selectedAppName" (change)="changeApplication()">
+			<option value="All">All</option>
+			<option *ngFor="let appName of appNames" [value]="appName">{{ appName }}</option>
+		</select>
+	</div>
+
+	<div class="filter">
+		<label for="startDate">Select Start Date:</label>
+		<input type="date" id="startDate" [(ngModel)]="selectedStartDate" (change)="changeStartDate()">
+	</div>
+
+	<div class="filter">
+		<label for="endDate">Select End Date:</label>
+		<input type="date" id="endDate" [(ngModel)]="selectedEndDate" (change)="changeEndDate()">
+	</div>
 </div>
+
+
+
 <div>
 	<canvasjs-chart [options]="chartOptions" [styles]="{width: '100%', height:'100%'}" (chartInstance)="getChartInstance($event)"></canvasjs-chart>
 </div>

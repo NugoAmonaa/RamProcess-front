@@ -1,11 +1,16 @@
 import {AfterViewInit, Component, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {interval, Subscription} from 'rxjs';
-import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {CanvasJSAngularChartsModule} from "@canvasjs/angular-charts";
-import {MatChipsModule} from "@angular/material/chips";
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {FormsModule} from "@angular/forms";
+import {CommonModule} from "@angular/common";
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatNativeDateModule} from '@angular/material/core';
+import {FormGroup, FormControl, ReactiveFormsModule} from '@angular/forms';
+import {NgIf, JsonPipe} from '@angular/common';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 @Component({
     selector: 'log-axis-chart',
@@ -15,17 +20,30 @@ import {FormsModule} from "@angular/forms";
 
     imports: [
         FormsModule,
-        CanvasJSAngularChartsModule
+        CanvasJSAngularChartsModule,
+        CommonModule, MatInputModule, MatDatepickerModule, MatNativeDateModule,
+        MatInputModule, MatFormFieldModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatButtonToggleModule
+
+
     ]
 })
 export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
     dataPoints: any = [];
     chart: any;
+    appNames: string[] = [];
+    selectedAppName: string = 'All';
+    selectedAppNames: string[] = [];
 
     dataUpdateSubscription: Subscription | undefined;
-    selectedInterval: number = 10000; // Default interval is 10 seconds
-
+    selectedInterval: number = 10000;
+    selectedStartDate: string = '';
+    selectedEndDate: string = '';
     constructor(private http: HttpClient) {
+        this.fetchApplicationNames();
+
     }
 
     chartOptions = {
@@ -60,29 +78,52 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit() {
-        this.fetchDataAndUpdateChart(); // Initial data fetch
+        this.fetchDataAndUpdateChart();
         this.dataUpdateSubscription = interval(this.selectedInterval).subscribe(() => {
-            this.fetchDataAndUpdateChart(); // Fetch data every 10 seconds
+            this.fetchDataAndUpdateChart();
         });
     }
 
     ngOnDestroy() {
-        this.fetchDataAndUpdateChart(); // Initial data fetch
+        this.fetchDataAndUpdateChart();
         this.startDataUpdateInterval();
         if (this.dataUpdateSubscription) {
             this.dataUpdateSubscription.unsubscribe();
         }
     }
-
+    fetchApplicationNames() {
+        this.http.get<string[]>('https://localhost:7054/Ram/Applications', { responseType: 'json' }).subscribe(
+            (response: string[]) => {
+                this.appNames = response;
+            },
+            (error) => {
+                console.error('Error fetching application names:', error);
+            }
+        );
+    }
     fetchDataAndUpdateChart() {
-        this.http.get('https://localhost:7054/Ram', {responseType: 'json'}).subscribe(
+        let apiUrl = 'https://localhost:7054/Ram';
+        if (this.selectedStartDate && this.selectedEndDate) {
+            apiUrl += `?startDate=${this.selectedStartDate}&endDate=${this.selectedEndDate}`;
+        }
+        if (this.selectedAppName!='') {
+            apiUrl += `&appName=${this.selectedAppName}`;
+        }
+        this.http.get(apiUrl, { responseType: 'json' }).subscribe(
             (response: any) => {
                 let data = response;
-                this.dataPoints.length = 0; // Clear the existing dataPoints array
+
+                this.dataPoints.length = 0;
+
                 for (let i = 0; i < data.length; i++) {
-                    this.dataPoints.push({x: new Date(data[i].date), y: Number(data[i].size)});
+
+
+                        this.dataPoints.push({ x: new Date(data[i].date), y: Number(data[i].size) });
+
+
                 }
                 this.chart.subtitles[0].remove();
+                this.startDataUpdateInterval();
             },
             (error) => {
                 console.error('Error fetching data:', error);
@@ -90,11 +131,32 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
         );
     }
 
+    changeApplications(selectedApps: string[]) {
+        this.selectedAppNames = selectedApps;
+        this.fetchDataAndUpdateChart();
+    }
+
+    changeStartDate() {
+        if (this.selectedStartDate) {
+            const startDate = new Date(this.selectedStartDate).toISOString();
+            this.selectedStartDate = startDate;
+        }
+        this.fetchDataAndUpdateChart();
+    }
+
+    changeEndDate() {
+        if (this.selectedEndDate) {
+            const endDate = new Date(this.selectedEndDate).toISOString();
+            this.selectedEndDate = endDate;
+        }
+        this.fetchDataAndUpdateChart();
+    }
+
 
     startDataUpdateInterval() {
-        this.stopDataUpdateInterval(); // Stop the existing interval if any
+        this.stopDataUpdateInterval();
         this.dataUpdateSubscription = interval(this.selectedInterval).subscribe(() => {
-            this.fetchDataAndUpdateChart(); // Fetch data based on the selected interval
+            this.fetchDataAndUpdateChart();
         });
     }
 
@@ -106,10 +168,15 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
 
     updateInterval(newInterval: number) {
         this.selectedInterval = newInterval;
-        this.startDataUpdateInterval(); // Start the interval with the new selected value
+        this.startDataUpdateInterval();
+    }
+    changeApplication() {
+        this.fetchDataAndUpdateChart();
+
     }
 
+
     changeInterval() {
-        this.startDataUpdateInterval(); // Start the interval with the selected value from the dropdown
+        this.startDataUpdateInterval();
     }
 }
