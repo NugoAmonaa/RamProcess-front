@@ -110,9 +110,8 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
         if (this.selectedStartDate && this.selectedEndDate) {
             apiUrl += `?startDate=${this.selectedStartDate}&endDate=${this.selectedEndDate}`;
         }
-        console.log(this.selectedEndDate);
 
-        if (this.selectedAppName!='') {
+        if (this.selectedAppName != '') {
             apiUrl += `&appName=${this.selectedAppName}`;
         }
         this.http.get(apiUrl, { responseType: 'json' }).subscribe(
@@ -122,13 +121,18 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
                 this.dataPoints.length = 0;
 
                 for (let i = 0; i < data.length; i++) {
-
-
-                        this.dataPoints.push({ x: new Date(data[i].date), y: Number(data[i].size) });
-
-
+                    this.dataPoints.push({ x: new Date(data[i].date), y: Number(data[i].size) });
                 }
-                this.chart.subtitles[0].remove();
+
+                // Tell the chart to update with new data
+                if (this.chart && this.chart.data) {
+                    this.chart.data[0].set("dataPoints", this.dataPoints);
+                }
+
+                if (this.chart && this.chart.subtitles && this.chart.subtitles[0]) {
+                    this.chart.subtitles[0].remove();
+                }
+
                 this.startDataUpdateInterval();
             },
             (error) => {
@@ -136,6 +140,7 @@ export class LineChartAjaxComponent implements AfterViewInit, OnDestroy {
             }
         );
     }
+
 
     changeApplications(selectedApps: string[]) {
         this.selectedAppNames = selectedApps;
